@@ -1,7 +1,6 @@
 /**
- * BeamUp deployment entry point.
- * Serves the addon on PORT (set by BeamUp/Heroku). Use this for cloud deployment.
- * For local use with admin panel, run: node addon.js
+ * Cloud deployment entry point (Render, Railway, etc.).
+ * Serves the addon on PORT. For local use with admin panel, run: node addon.js
  */
 const { serveHTTP } = require('stremio-addon-sdk')
 const addonInterface = require('./beamup.js')

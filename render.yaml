@@ -1,0 +1,7 @@
+# Render.com blueprint - optional; you can also use the dashboard only
+services:
+  - type: web
+    name: superlatinoaddon
+    env: node
+    buildCommand: npm install
+    startCommand: npm start
