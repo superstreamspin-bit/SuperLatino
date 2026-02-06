@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SuperStremio Admin</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            color: white;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .tab {
+            flex: 1;
+            padding: 15px;
+            background: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        .tab:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .tab.active {
+            background: #4CAF50;
+            color: white;
+        }
+        
+        .form-container {
+            display: none;
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        
+        .form-container.active {
+            display: block;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        input[type="text"],
+        input[type="number"],
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+        
+        input:focus,
+        select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .checkbox-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .checkbox-item input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+        
+        .other-audio {
+            margin-top: 10px;
+            display: none;
+        }
+        
+        .other-audio.active {
+            display: block;
+        }
+        
+        button[type="submit"] {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        button[type="submit"]:hover {
+            transform: translateY(-2px);
+        }
+        
+        .success-message {
+            display: none;
+            padding: 15px;
+            background: #4CAF50;
+            color: white;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .success-message.show {
+            display: block;
+        }
+        
+        .content-list {
+            margin-top: 30px;
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+        }
+        
+        .content-item {
+            padding: 15px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .delete-btn {
+            padding: 8px 15px;
+            background: #f44336;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        
+        .delete-btn:hover {
+            background: #d32f2f;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎬 SuperStremio Admin</h1>
+        
+        <div class="success-message" id="successMessage"></div>
+        
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('movie')">Add Movie</button>
+            <button class="tab" onclick="switchTab('episode')">Add TV Episode</button>
+            <button class="tab" onclick="switchTab('list')">View Content</button>
+        </div>
+        
+        <!-- Movie Form -->
+        <div class="form-container active" id="movieForm">
+            <h2 style="margin-bottom: 20px;">Add New Movie</h2>
+            <form onsubmit="addMovie(event)">
+                <div class="form-group">
+                    <label>IMDb ID *</label>
+                    <input type="text" id="movieImdb" placeholder="tt0133093" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Movie Name *</label>
+                    <input type="text" id="movieName" placeholder="The Matrix" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Poster URL *</label>
+                    <input type="text" id="moviePoster" placeholder="https://..." required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Video URL *</label>
+                    <input type="text" id="movieUrl" placeholder="https://..." required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Quality *</label>
+                    <select id="movieQuality" required>
+                        <option value="HD">HD</option>
+                        <option value="4K">4K</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>Audio *</label>
+                    <div class="checkbox-group">
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="movieLatino" value="🇲🇽 Latino">
+                            <label for="movieLatino">🇲🇽 Latino</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="movieEnglish" value="🇺🇸 English">
+                            <label for="movieEnglish">🇺🇸 English</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="movieEspanol" value="🇪🇸 Español">
+                            <label for="movieEspanol">🇪🇸 Español</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="movieOtherCheck" onchange="toggleOtherAudio('movie')">
+                            <label for="movieOtherCheck">Other</label>
+                        </div>
+                        <div class="other-audio" id="movieOtherAudio">
+                            <input type="text" id="movieOtherText" placeholder="e.g., 🇰🇷 Korean (Subs: 🇺🇸 English)">
+                        </div>
+                    </div>
+                </div>
+                
+                <button type="submit">Add Movie</button>
+            </form>
+        </div>
+        
+        <!-- Episode Form -->
+        <div class="form-container" id="episodeForm">
+            <h2 style="margin-bottom: 20px;">Add TV Episode</h2>
+            <form onsubmit="addEpisode(event)">
+                <div class="form-group">
+                    <label>IMDb ID *</label>
+                    <input type="text" id="episodeImdb" placeholder="tt21066182" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Show Name *</label>
+                    <input type="text" id="episodeName" placeholder="Wonder Man" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Poster URL *</label>
+                    <input type="text" id="episodePoster" placeholder="https://..." required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Season Number *</label>
+                    <input type="number" id="episodeSeason" min="1" placeholder="1" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Episode Number *</label>
+                    <input type="number" id="episodeNumber" min="1" placeholder="1" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Video URL *</label>
+                    <input type="text" id="episodeUrl" placeholder="https://..." required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Quality *</label>
+                    <select id="episodeQuality" required>
+                        <option value="HD">HD</option>
+                        <option value="4K">4K</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>Audio *</label>
+                    <div class="checkbox-group">
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="episodeLatino" value="🇲🇽 Latino">
+                            <label for="episodeLatino">🇲🇽 Latino</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="episodeEnglish" value="🇺🇸 English">
+                            <label for="episodeEnglish">🇺🇸 English</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="episodeEspanol" value="🇪🇸 Español">
+                            <label for="episodeEspanol">🇪🇸 Español</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="episodeOtherCheck" onchange="toggleOtherAudio('episode')">
+                            <label for="episodeOtherCheck">Other</label>
+                        </div>
+                        <div class="other-audio" id="episodeOtherAudio">
+                            <input type="text" id="episodeOtherText" placeholder="e.g., 🇰🇷 Korean (Subs: 🇺🇸 English)">
+                        </div>
+                    </div>
+                </div>
+                
+                <button type="submit">Add Episode</button>
+            </form>
+        </div>
+        
+        <!-- Content List -->
+        <div class="form-container" id="listForm">
+            <h2 style="margin-bottom: 20px;">Your Content</h2>
+            <div id="contentList"></div>
+        </div>
+    </div>
+    
+    <script>
+        function switchTab(tab) {
+            // Update tab buttons
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // Update forms
+            document.querySelectorAll('.form-container').forEach(f => f.classList.remove('active'));
+            
+            if (tab === 'movie') {
+                document.getElementById('movieForm').classList.add('active');
+            } else if (tab === 'episode') {
+                document.getElementById('episodeForm').classList.add('active');
+            } else if (tab === 'list') {
+                document.getElementById('listForm').classList.add('active');
+                loadContent();
+            }
+        }
+        
+        function toggleOtherAudio(type) {
+            const checkbox = document.getElementById(`${type}OtherCheck`);
+            const otherInput = document.getElementById(`${type}OtherAudio`);
+            
+            if (checkbox.checked) {
+                otherInput.classList.add('active');
+            } else {
+                otherInput.classList.remove('active');
+            }
+        }
+        
+        function getAudioSelections(type) {
+            const audio = [];
+            
+            if (document.getElementById(`${type}Latino`).checked) {
+                audio.push('🇲🇽 Latino');
+            }
+            if (document.getElementById(`${type}English`).checked) {
+                audio.push('🇺🇸 English');
+            }
+            if (document.getElementById(`${type}Espanol`).checked) {
+                audio.push('🇪🇸 Español');
+            }
+            if (document.getElementById(`${type}OtherCheck`).checked) {
+                const otherText = document.getElementById(`${type}OtherText`).value.trim();
+                if (otherText) {
+                    audio.push(otherText);
+                }
+            }
+            
+            return audio;
+        }
+        
+        function showSuccess(message) {
+            const msgEl = document.getElementById('successMessage');
+            msgEl.textContent = message;
+            msgEl.classList.add('show');
+            
+            setTimeout(() => {
+                msgEl.classList.remove('show');
+            }, 3000);
+        }
+        
+        async function addMovie(event) {
+            event.preventDefault();
+            
+            const audio = getAudioSelections('movie');
+            
+            if (audio.length === 0) {
+                alert('Please select at least one audio option');
+                return;
+            }
+            
+            const data = {
+                id: document.getElementById('movieImdb').value,
+                name: document.getElementById('movieName').value,
+                poster: document.getElementById('moviePoster').value,
+                url: document.getElementById('movieUrl').value,
+                quality: document.getElementById('movieQuality').value,
+                audio: audio
+            };
+            
+            try {
+                const response = await fetch('/api/movies', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showSuccess('Movie added successfully!');
+                    event.target.reset();
+                }
+            } catch (error) {
+                alert('Error adding movie: ' + error.message);
+            }
+        }
+        
+        async function addEpisode(event) {
+            event.preventDefault();
+            
+            const audio = getAudioSelections('episode');
+            
+            if (audio.length === 0) {
+                alert('Please select at least one audio option');
+                return;
+            }
+            
+            const data = {
+                id: document.getElementById('episodeImdb').value,
+                name: document.getElementById('episodeName').value,
+                poster: document.getElementById('episodePoster').value,
+                season: document.getElementById('episodeSeason').value,
+                episode: document.getElementById('episodeNumber').value,
+                url: document.getElementById('episodeUrl').value,
+                quality: document.getElementById('episodeQuality').value,
+                audio: audio
+            };
+            
+            try {
+                const response = await fetch('/api/episodes', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showSuccess('Episode added successfully!');
+                    event.target.reset();
+                }
+            } catch (error) {
+                alert('Error adding episode: ' + error.message);
+            }
+        }
+        
+        async function loadContent() {
+            try {
+                const response = await fetch('/api/content');
+                const { movies, series } = await response.json();
+                
+                const listEl = document.getElementById('contentList');
+                listEl.innerHTML = '';
+                
+                // Add movies
+                if (movies.length > 0) {
+                    listEl.innerHTML += '<h3 style="margin-bottom: 15px;">Movies</h3>';
+                    movies.forEach(movie => {
+                        const div = document.createElement('div');
+                        div.className = 'content-item';
+                        div.innerHTML = `
+                            <div>
+                                <strong>${movie.name}</strong><br>
+                                <small>${movie.id}</small>
+                            </div>
+                            <button class="delete-btn" onclick="deleteMovie('${movie.id}')">Delete</button>
+                        `;
+                        listEl.appendChild(div);
+                    });
+                }
+                
+                // Add series
+                if (series.length > 0) {
+                    listEl.innerHTML += '<h3 style="margin: 20px 0 15px 0;">TV Shows</h3>';
+                    series.forEach(show => {
+                        show.episodes.forEach(ep => {
+                            const div = document.createElement('div');
+                            div.className = 'content-item';
+                            div.innerHTML = `
+                                <div>
+                                    <strong>${show.name}</strong> - S${ep.season}E${ep.episode}<br>
+                                    <small>${show.id}</small>
+                                </div>
+                                <button class="delete-btn" onclick="deleteEpisode('${show.id}', ${ep.season}, ${ep.episode})">Delete</button>
+                            `;
+                            listEl.appendChild(div);
+                        });
+                    });
+                }
+                
+                if (movies.length === 0 && series.length === 0) {
+                    listEl.innerHTML = '<p style="text-align: center; color: #999;">No content yet. Add some movies or episodes!</p>';
+                }
+            } catch (error) {
+                console.error('Error loading content:', error);
+            }
+        }
+        
+        async function deleteMovie(id) {
+            if (!confirm('Are you sure you want to delete this movie?')) return;
+            
+            try {
+                await fetch(`/api/movies/${id}`, { method: 'DELETE' });
+                loadContent();
+                showSuccess('Movie deleted!');
+            } catch (error) {
+                alert('Error deleting movie: ' + error.message);
+            }
+        }
+        
+        async function deleteEpisode(id, season, episode) {
+            if (!confirm('Are you sure you want to delete this episode?')) return;
+            
+            try {
+                await fetch(`/api/episodes/${id}/${season}/${episode}`, { method: 'DELETE' });
+                loadContent();
+                showSuccess('Episode deleted!');
+            } catch (error) {
+                alert('Error deleting episode: ' + error.message);
+            }
+        }
+    </script>
+</body>
+</html>
