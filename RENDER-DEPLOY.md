@@ -44,8 +44,10 @@ Render will build and deploy. When it’s done, you’ll see a URL like:
 ## 4. Use the addon in Stremio
 
 1. Open Stremio.
-2. Add addon: paste your Render URL, e.g. **https://superlatino.onrender.com**.
+2. Add addon: paste the **manifest URL** (must end with `/manifest.json`), e.g. **https://superlatino.onrender.com/manifest.json**.
 3. Install. Your catalog and streams will work from any network.
+
+> **Important:** Use the `/manifest.json` URL, not the root. Stremio needs the manifest JSON; the root URL serves an HTML page and will cause "Failed to get addon manifest".
 
 ## 5. Updating the addon (new movies/series)
 
